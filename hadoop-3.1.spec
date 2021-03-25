@@ -11,7 +11,7 @@
 %define real_name hadoop
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 1
+Release: 2
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -42,10 +42,10 @@ offering local computation and storage.
 %package client
 Summary: Libraries for Apache Hadoop clients
 BuildArch: noarch
-Requires: %{real_name}-common = %{version}-%{release}
-Requires: %{real_name}-hdfs = %{version}-%{release}
-Requires: %{real_name}-mapreduce = %{version}-%{release}
-Requires: %{real_name}-yarn = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
+Requires: %{name}-hdfs = %{version}-%{release}
+Requires: %{name}-mapreduce = %{version}-%{release}
+Requires: %{name}-yarn = %{version}-%{release}
 
 %description client
 Apache Hadoop is a framework that allows for the distributed processing of
@@ -59,7 +59,7 @@ This package provides libraries for Apache Hadoop clients.
 Summary: Common files needed by Apache Hadoop daemons
 BuildArch: noarch
 Requires(pre): /usr/sbin/useradd
-Obsoletes: %{real_name}-javadoc < 2.4.1-22%{?dist}
+Obsoletes: %{name}-javadoc < 2.4.1-22%{?dist}
 
 # These are required to meet the symlinks for the classpath
 Requires: antlr-tool
@@ -75,7 +75,6 @@ Requires: glassfish-jsp-api
 Requires: istack-commons
 Requires: jakarta-commons-httpclient
 Requires: java-base64
-Requires: java-xmlbuilder
 Requires: javamail
 Requires: jettison
 Requires: jetty8
@@ -87,7 +86,6 @@ Requires: paranamer
 Requires: relaxngDatatype
 Requires: servlet3
 Requires: snappy-java
-Requires: txw2
 Requires: which
 
 %description common
@@ -101,7 +99,7 @@ Hadoop modules.
 
 %package common-native
 Summary: The native Apache Hadoop library file
-Requires: %{real_name}-common = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 
 %description common-native
 Apache Hadoop is a framework that allows for the distributed processing of
@@ -122,7 +120,7 @@ Header files for Apache Hadoop's hdfs library and other utilities
 Summary: The Apache Hadoop Distributed File System
 BuildArch: noarch
 Requires: apache-commons-daemon-jsvc
-Requires: %{real_name}-common = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -161,7 +159,7 @@ the complete FileSystem/FileContext interface in HDFS.
 
 %package -n libhdfs
 Summary: The Apache Hadoop Filesystem Library
-Requires: %{real_name}-hdfs = %{version}-%{release}
+Requires: %{name}-hdfs = %{version}-%{release}
 Requires: lzo
 
 %description -n libhdfs
@@ -175,7 +173,7 @@ This package provides the Apache Hadoop Filesystem Library.
 %package mapreduce
 Summary: Apache Hadoop MapReduce (MRv2)
 BuildArch: noarch
-Requires: %{real_name}-common = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -207,10 +205,10 @@ The Apache Hadoop maven plugin
 %package tests
 Summary: Apache Hadoop test resources
 BuildArch: noarch
-Requires: %{real_name}-common = %{version}-%{release}
-Requires: %{real_name}-hdfs = %{version}-%{release}
-Requires: %{real_name}-mapreduce = %{version}-%{release}
-Requires: %{real_name}-yarn = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
+Requires: %{name}-hdfs = %{version}-%{release}
+Requires: %{name}-mapreduce = %{version}-%{release}
+Requires: %{name}-yarn = %{version}-%{release}
 
 %description tests
 Apache Hadoop is a framework that allows for the distributed processing of
@@ -222,8 +220,8 @@ This package contains test related resources for Apache Hadoop.
 
 %package yarn
 Summary: Apache Hadoop YARN
-Requires: %{real_name}-common = %{version}-%{release}
-Requires: %{real_name}-mapreduce = %{version}-%{release}
+Requires: %{name}-common = %{version}-%{release}
+Requires: %{name}-mapreduce = %{version}-%{release}
 Requires: aopalliance
 Requires: atinject
 Requires: hamcrest
@@ -243,7 +241,7 @@ This package contains Apache Hadoop YARN.
 
 %package yarn-security
 Summary: The ability to run Apache Hadoop YARN in secure mode
-Requires: %{real_name}-yarn = %{version}-%{release}
+Requires: %{name}-yarn = %{version}-%{release}
 
 %description yarn-security
 Apache Hadoop is a framework that allows for the distributed processing of
@@ -1014,5 +1012,8 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Wed Mar 24 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-2
+- Modify install require
+
 * Fri Mar 12 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-1
 - Init package
