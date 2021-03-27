@@ -11,7 +11,7 @@
 %define real_name hadoop
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 2
+Release: 3
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -143,7 +143,7 @@ Requires: ecj >= 1:4.2.1-6
 Requires: json_simple
 Requires: tomcat
 Requires: tomcat-lib
-Requires: tomcat-native
+Requires: tcnative
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -1012,6 +1012,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Sat Mar 27 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-3
+- Modify subpackage httpfs's install require
+
 * Wed Mar 24 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-2
 - Modify install require
 
