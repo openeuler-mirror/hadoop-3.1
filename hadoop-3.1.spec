@@ -11,7 +11,7 @@
 %define real_name hadoop
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 2
+Release: 3
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -27,6 +27,10 @@ Source6: %{real_name}.logrotate
 Source7: %{real_name}-httpfs.sysconfig
 Source8: hdfs-create-dirs
 Source9: %{real_name}-tomcat-users.xml
+Source10: %{real_name}-core-site.xml
+Source11: %{real_name}-hdfs-site.xml
+Source12: %{real_name}-mapred-site.xml
+Source13: %{real_name}-yarn-site.xml
 
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{release}-root
 BuildRequires: java-1.8.0-openjdk-devel maven hostname maven-local tomcat cmake snappy openssl-devel 
@@ -143,7 +147,7 @@ Requires: ecj >= 1:4.2.1-6
 Requires: json_simple
 Requires: tomcat
 Requires: tomcat-lib
-Requires: tomcat-native
+Requires: tcnative
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -174,6 +178,7 @@ This package provides the Apache Hadoop Filesystem Library.
 Summary: Apache Hadoop MapReduce (MRv2)
 BuildArch: noarch
 Requires: %{name}-common = %{version}-%{release}
+Requires: %{name}-mapreduce-examples = %{version}-%{release}
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -322,41 +327,41 @@ link_hadoop_jars()
     then
       rm -f $1/$f $1/$n
     fi
-    p=`find %{buildroot}/%{_jnidir} %{buildroot}/%{_javadir}/%{real_name} -name $n | sed "s#%{buildroot}##"`
+    p=`find %{buildroot}%{_jnidir} %{buildroot}%{_javadir}/%{real_name} -name $n | sed "s#%{buildroot}##"`
     %{__ln_s} $p $1/$n
   done
 }
 
 %mvn_install
 
-install -d -m 0755 %{buildroot}/%{_libdir}/%{real_name}
-install -d -m 0755 %{buildroot}/%{_includedir}/%{real_name}
-install -d -m 0755 %{buildroot}/%{_jnidir}/%{real_name}
+install -d -m 0755 %{buildroot}%{_libdir}/%{real_name}
+install -d -m 0755 %{buildroot}%{_includedir}/%{real_name}
+install -d -m 0755 %{buildroot}%{_jnidir}/%{real_name}
 
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/client/lib
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/common/lib
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/hdfs/lib
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/hdfs/webapps
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/mapreduce/lib
-install -d -m 0755 %{buildroot}/%{_datadir}/%{real_name}/yarn/lib
-install -d -m 0755 %{buildroot}/%{_sysconfdir}/%{real_name}/tomcat/Catalina/localhost
-install -d -m 0755 %{buildroot}/%{_sysconfdir}/logrotate.d
-install -d -m 0755 %{buildroot}/%{_sysconfdir}/sysconfig
-install -d -m 0755 %{buildroot}/%{_tmpfilesdir}
-install -d -m 0755 %{buildroot}/%{_sharedstatedir}/%{real_name}-hdfs
-install -d -m 0755 %{buildroot}/%{_sharedstatedir}/tomcats/httpfs
-install -d -m 0755 %{buildroot}/%{_var}/cache/%{real_name}-yarn
-install -d -m 0755 %{buildroot}/%{_var}/cache/%{real_name}-httpfs/temp
-install -d -m 0755 %{buildroot}/%{_var}/cache/%{real_name}-httpfs/work
-install -d -m 0755 %{buildroot}/%{_var}/cache/%{real_name}-mapreduce
-install -d -m 0755 %{buildroot}/%{_var}/log/%{real_name}-yarn
-install -d -m 0755 %{buildroot}/%{_var}/log/%{real_name}-hdfs
-install -d -m 0755 %{buildroot}/%{_var}/log/%{real_name}-httpfs
-install -d -m 0755 %{buildroot}/%{_var}/log/%{real_name}-mapreduce
-install -d -m 0755 %{buildroot}/%{_var}/run/%{real_name}-yarn
-install -d -m 0755 %{buildroot}/%{_var}/run/%{real_name}-hdfs
-install -d -m 0755 %{buildroot}/%{_var}/run/%{real_name}-mapreduce
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/client/lib
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/common/lib
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/hdfs/webapps
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
+install -d -m 0755 %{buildroot}%{_datadir}/%{real_name}/yarn/lib
+install -d -m 0755 %{buildroot}%{_sysconfdir}/%{real_name}/tomcat/Catalina/localhost
+install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
+install -d -m 0755 %{buildroot}%{_sysconfdir}/sysconfig
+install -d -m 0755 %{buildroot}%{_tmpfilesdir}
+install -d -m 0755 %{buildroot}%{_sharedstatedir}/%{real_name}-hdfs
+install -d -m 0755 %{buildroot}%{_sharedstatedir}/tomcats/httpfs
+install -d -m 0755 %{buildroot}%{_var}/cache/%{real_name}-yarn
+install -d -m 0755 %{buildroot}%{_var}/cache/%{real_name}-httpfs/temp
+install -d -m 0755 %{buildroot}%{_var}/cache/%{real_name}-httpfs/work
+install -d -m 0755 %{buildroot}%{_var}/cache/%{real_name}-mapreduce
+install -d -m 0755 %{buildroot}%{_var}/log/%{real_name}-yarn
+install -d -m 0755 %{buildroot}%{_var}/log/%{real_name}-hdfs
+install -d -m 0755 %{buildroot}%{_var}/log/%{real_name}-httpfs
+install -d -m 0755 %{buildroot}%{_var}/log/%{real_name}-mapreduce
+install -d -m 0755 %{buildroot}%{_var}/run/%{real_name}-yarn
+install -d -m 0755 %{buildroot}%{_var}/run/%{real_name}-hdfs
+install -d -m 0755 %{buildroot}%{_var}/run/%{real_name}-mapreduce
 
 basedir='%{real_name}-common-project/%{real_name}-common/target/%{real_name}-common-%{hadoop_version}'
 hdfsdir='%{real_name}-hdfs-project/%{real_name}-hdfs/target/%{real_name}-hdfs-%{hadoop_version}'
@@ -365,44 +370,60 @@ mapreddir='%{real_name}-mapreduce-project/target/%{real_name}-mapreduce-%{hadoop
 yarndir='%{real_name}-yarn-project/target/%{real_name}-yarn-project-%{hadoop_version}'
 
 # copy jar package
-install -d -m 0755 %{buildroot}/%{_datadir}/java/%{real_name}
-install -d -m 0755 %{buildroot}/%{_datadir}/maven-poms/%{real_name}
+install -d -m 0755 %{buildroot}%{_datadir}/java/%{real_name}
+install -d -m 0755 %{buildroot}%{_datadir}/maven-poms/%{real_name}
 # client
-install -m 0755 %{real_name}-client-modules/%{real_name}-client/target/hadoop-client-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-client.jar
+install -m 0755 %{real_name}-client-modules/%{real_name}-client/target/hadoop-client-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-client.jar
 echo %{_datadir}/java/%{real_name}/hadoop-client.jar >> .mfiles-hadoop-client 
-install -m 0755 %{real_name}-client-modules/%{real_name}-client/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-client.pom 
+install -m 0755 %{real_name}-client-modules/%{real_name}-client/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-client.pom 
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-client.pom >> .mfiles-hadoop-client
+install -m 0755 %{real_name}-client-modules/%{real_name}-client-api/target/hadoop-client-api-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-client-api.jar
+echo %{_datadir}/java/%{real_name}/hadoop-client-api.jar >> .mfiles-hadoop-client
+install -m 0755 %{real_name}-client-modules/%{real_name}-client-api/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-client-api.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-client-api.pom >> .mfiles-hadoop-client
+install -m 0755 %{real_name}-client-modules/%{real_name}-client-minicluster/target/hadoop-client-minicluster-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-client-minicluster.jar
+echo %{_datadir}/java/%{real_name}/hadoop-client-minicluster.jar >> .mfiles-hadoop-client
+install -m 0755 %{real_name}-client-modules/%{real_name}-client-minicluster/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-client-minicluster.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-client-minicluster.pom >> .mfiles-hadoop-client
+install -m 0755 %{real_name}-client-modules/%{real_name}-client-runtime/target/hadoop-client-runtime-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-client-runtime.jar
+echo %{_datadir}/java/%{real_name}/hadoop-client-runtime.jar >> .mfiles-hadoop-client
+install -m 0755 %{real_name}-client-modules/%{real_name}-client-runtime/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-client-runtime.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-client-runtime.pom >> .mfiles-hadoop-client
 # common
-install -m 0755 %{real_name}-common-project/%{real_name}-annotations/target/hadoop-annotations-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-annotations.jar
+install -m 0755 %{real_name}-common-project/%{real_name}-annotations/target/hadoop-annotations-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-annotations.jar
 echo %{_datadir}/java/%{real_name}/hadoop-annotations.jar >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-auth/target/hadoop-auth-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-auth.jar
+install -m 0755 %{real_name}-common-project/%{real_name}-auth/target/hadoop-auth-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-auth.jar
 echo %{_datadir}/java/%{real_name}/hadoop-auth.jar >> .mfiles
-install -m 0755 %{real_name}-tools/%{real_name}-aws/target/hadoop-aws-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-aws.jar
+install -m 0755 %{real_name}-tools/%{real_name}-aws/target/hadoop-aws-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-aws.jar
 echo %{_datadir}/java/%{real_name}/hadoop-aws.jar >> .mfiles
-install -m 0755 %{real_name}-build-tools/target/hadoop-build-tools-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-build-tools.jar
+install -m 0755 %{real_name}-build-tools/target/hadoop-build-tools-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-build-tools.jar
 echo %{_datadir}/java/%{real_name}/hadoop-build-tools.jar >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-nfs/target/hadoop-nfs-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-nfs.jar
+install -m 0755 %{real_name}-common-project/%{real_name}-nfs/target/hadoop-nfs-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-nfs.jar
 echo %{_datadir}/java/%{real_name}/hadoop-nfs.jar >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-common/target/hadoop-common-%{version}.jar %{buildroot}/%{_prefix}/lib/java/hadoop/hadoop-common.jar
+install -m 0755 %{real_name}-common-project/%{real_name}-common/target/hadoop-common-%{version}.jar %{buildroot}%{_prefix}/lib/java/hadoop/hadoop-common.jar
 echo %{_prefix}/lib/java/hadoop/hadoop-common.jar >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-annotations/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-annotations.pom
+install -m 0755 %{real_name}-common-project/%{real_name}-kms/target/hadoop-kms-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-kms.jar
+echo %{_datadir}/java/%{real_name}/hadoop-kms.jar >> .mfiles
+install -m 0755 %{real_name}-common-project/%{real_name}-annotations/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-annotations.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-annotations.pom >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-auth/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-auth.pom
+install -m 0755 %{real_name}-common-project/%{real_name}-auth/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-auth.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-auth.pom >> .mfiles
-install -m 0755 %{real_name}-tools/%{real_name}-aws/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-aws.pom
+install -m 0755 %{real_name}-tools/%{real_name}-aws/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-aws.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-aws.pom >> .mfiles
-install -m 0755 %{real_name}-build-tools/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-build-tools.pom
+install -m 0755 %{real_name}-build-tools/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-build-tools.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-build-tools.pom >> .mfiles
-install -m 0755 %{real_name}-common-project/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-common-project.pom
+install -m 0755 %{real_name}-common-project/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-common-project.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-common-project.pom >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-common/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-common.pom
+install -m 0755 %{real_name}-common-project/%{real_name}-common/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-common.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-common.pom >> .mfiles
-install -m 0755 %{real_name}-dist/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-dist.pom
+install -m 0755 %{real_name}-dist/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-dist.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-dist.pom >> .mfiles
-install -m 0755 %{real_name}-common-project/%{real_name}-nfs/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-nfs.pom
+install -m 0755 %{real_name}-common-project/%{real_name}-nfs/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-nfs.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-nfs.pom >> .mfiles
-install -m 0755 %{real_name}-project/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-project.pom 
+install -m 0755 %{real_name}-project/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-project.pom 
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-project.pom >> .mfiles
+install -m 0755 %{real_name}-common-project/%{real_name}-kms/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-kms.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-kms.pom >> .mfiles
 echo %{_sysconfdir}/%{real_name}/hadoop-user-functions.sh.example >> .mfiles
 echo %{_sysconfdir}/%{real_name}/shellprofile.d/example.sh >> .mfiles
 echo %{_sysconfdir}/%{real_name}/workers >> .mfiles
@@ -411,184 +432,226 @@ echo %{_prefix}/libexec/hadoop-layout.sh.example >> .mfiles
 echo %{_prefix}/sbin/workers.sh >> .mfiles
 echo %{_datadir}/%{real_name}/common/hadoop-common.jar >> .mfiles
 # hdfs
-install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-nfs/target/hadoop-hdfs-nfs-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-hdfs-nfs.jar
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-client/target/hadoop-hdfs-client-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-client.jar
+echo %{_datadir}/java/%{real_name}/hadoop-hdfs-client.jar >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-nfs/target/hadoop-hdfs-nfs-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-nfs.jar
 echo %{_datadir}/java/%{real_name}/hadoop-hdfs-nfs.jar >> .mfiles-hadoop-hdfs
-install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs/target/hadoop-hdfs-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-hdfs.jar
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs/target/hadoop-hdfs-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs.jar
 echo %{_datadir}/java/%{real_name}/hadoop-hdfs.jar >> .mfiles-hadoop-hdfs
-install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-nfs/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-nfs.pom
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-nfs/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-nfs.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-nfs.pom >> .mfiles-hadoop-hdfs
-install -m 0755 %{real_name}-hdfs-project/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-project.pom
+install -m 0755 %{real_name}-hdfs-project/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-project.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-project.pom >> .mfiles-hadoop-hdfs
-install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs.pom
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-hdfs.pom >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-httpfs/target/hadoop-hdfs-httpfs-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-httpfs.jar
+echo %{_datadir}/java/%{real_name}/hadoop-hdfs-httpfs.jar >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-httpfs/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-httpfs.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-httpfs.pom >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-native-client/target/hadoop-hdfs-native-client-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-native-client.jar
+echo %{_datadir}/java/%{real_name}/hadoop-hdfs-native-client.jar >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-native-client/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-native-client.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-native-client.pom >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-rbf/target/hadoop-hdfs-rbf-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-rbf.jar
+echo %{_datadir}/java/%{real_name}/hadoop-hdfs-rbf.jar >> .mfiles-hadoop-hdfs
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-rbf/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-rbf.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-hdfs-rbf.pom >> .mfiles-hadoop-hdfs
 echo %{_prefix}/libexec/shellprofile.d/hadoop-hdfs.sh >> .mfiles-hadoop-hdfs
 # mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-archives/target/hadoop-archives-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-archives.jar
+install -m 0755 %{real_name}-tools/%{real_name}-archives/target/hadoop-archives-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-archives.jar
 echo %{_datadir}/java/%{real_name}/hadoop-archives.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-datajoin/target/hadoop-datajoin-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-datajoin.jar
+install -m 0755 %{real_name}-tools/%{real_name}-datajoin/target/hadoop-datajoin-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-datajoin.jar
 echo %{_datadir}/java/%{real_name}/hadoop-datajoin.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-distcp/target/hadoop-distcp-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-distcp.jar
+install -m 0755 %{real_name}-tools/%{real_name}-distcp/target/hadoop-distcp-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-distcp.jar
 echo %{_datadir}/java/%{real_name}/hadoop-distcp.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-extras/target/hadoop-extras-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-extras.jar
+install -m 0755 %{real_name}-tools/%{real_name}-extras/target/hadoop-extras-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-extras.jar
 echo %{_datadir}/java/%{real_name}/hadoop-extras.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-gridmix/target/hadoop-gridmix-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-gridmix.jar
+install -m 0755 %{real_name}-tools/%{real_name}-gridmix/target/hadoop-gridmix-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-gridmix.jar
 echo %{_datadir}/java/%{real_name}/hadoop-gridmix.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-app/target/hadoop-mapreduce-client-app-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-app.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-app/target/hadoop-mapreduce-client-app-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-app.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-app.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-common/target/hadoop-mapreduce-client-common-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-common.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-common/target/hadoop-mapreduce-client-common-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-common.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-common.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-core/target/hadoop-mapreduce-client-core-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-core.jar 
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-core/target/hadoop-mapreduce-client-core-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-core.jar 
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-core.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs-plugins/target/hadoop-mapreduce-client-hs-plugins-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-hs-plugins.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs-plugins/target/hadoop-mapreduce-client-hs-plugins-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-hs-plugins.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-hs-plugins.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs/target/hadoop-mapreduce-client-hs-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-hs.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs/target/hadoop-mapreduce-client-hs-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-hs.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-hs.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-jobclient/target/hadoop-mapreduce-client-jobclient-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-jobclient.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-jobclient/target/hadoop-mapreduce-client-jobclient-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-jobclient.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-jobclient.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-shuffle/target/hadoop-mapreduce-client-shuffle-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-shuffle.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-shuffle/target/hadoop-mapreduce-client-shuffle-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-shuffle.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-shuffle.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-openstack/target/hadoop-openstack-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-openstack.jar
+install -m 0755 %{real_name}-tools/%{real_name}-openstack/target/hadoop-openstack-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-openstack.jar
 echo %{_datadir}/java/%{real_name}/hadoop-openstack.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-rumen/target/hadoop-rumen-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-rumen.jar
+install -m 0755 %{real_name}-tools/%{real_name}-rumen/target/hadoop-rumen-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-rumen.jar
 echo %{_datadir}/java/%{real_name}/hadoop-rumen.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-sls/target/hadoop-sls-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-sls.jar
+install -m 0755 %{real_name}-tools/%{real_name}-sls/target/hadoop-sls-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-sls.jar
 echo %{_datadir}/java/%{real_name}/hadoop-sls.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-streaming/target/hadoop-streaming-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-streaming.jar
+install -m 0755 %{real_name}-tools/%{real_name}-streaming/target/hadoop-streaming-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-streaming.jar
 echo %{_datadir}/java/%{real_name}/hadoop-streaming.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-tools-dist/target/hadoop-tools-dist-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-tools-dist.jar
+install -m 0755 %{real_name}-tools/%{real_name}-tools-dist/target/hadoop-tools-dist-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-tools-dist.jar
 echo %{_datadir}/java/%{real_name}/hadoop-tools-dist.jar >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-archives/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-archives.pom
+install -m 0755 %{real_name}-tools/%{real_name}-archives/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-archives.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-archives.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-datajoin/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-datajoin.pom
+install -m 0755 %{real_name}-tools/%{real_name}-datajoin/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-datajoin.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-datajoin.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-distcp/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-distcp.pom
+install -m 0755 %{real_name}-tools/%{real_name}-distcp/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-distcp.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-distcp.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-extras/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-extras.pom 
+install -m 0755 %{real_name}-tools/%{real_name}-extras/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-extras.pom 
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-extras.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-gridmix/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-gridmix.pom
+install -m 0755 %{real_name}-tools/%{real_name}-gridmix/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-gridmix.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-gridmix.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-app/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-app.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-app/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-app.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-app.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-common/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-common.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-common/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-common.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-common.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-core/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-core.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-core/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-core.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-core.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs-plugins/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-hs-plugins.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs-plugins/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-hs-plugins.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-hs-plugins.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-hs.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-hs/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-hs.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-hs.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-jobclient/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-jobclient.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-jobclient/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-jobclient.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-jobclient.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-shuffle/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-shuffle.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-shuffle/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-shuffle.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-shuffle.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-mapreduce-project/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce.pom
+install -m 0755 %{real_name}-mapreduce-project/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-openstack/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-openstack.pom
+install -m 0755 %{real_name}-tools/%{real_name}-openstack/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-openstack.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-openstack.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-rumen/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-rumen.pom
+install -m 0755 %{real_name}-tools/%{real_name}-rumen/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-rumen.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-rumen.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-sls/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-sls.pom
+install -m 0755 %{real_name}-tools/%{real_name}-sls/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-sls.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-sls.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-streaming/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-streaming.pom
+install -m 0755 %{real_name}-tools/%{real_name}-streaming/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-streaming.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-streaming.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/%{real_name}-tools-dist/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-tools-dist.pom
+install -m 0755 %{real_name}-tools/%{real_name}-tools-dist/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-tools-dist.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-tools-dist.pom >> .mfiles-hadoop-mapreduce
-install -m 0755 %{real_name}-tools/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-tools.pom
+install -m 0755 %{real_name}-tools/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-tools.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-tools.pom >> .mfiles-hadoop-mapreduce
 echo %{_prefix}/libexec/shellprofile.d/hadoop-mapreduce.sh >> .mfiles-hadoop-mapreduce
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-nativetask/target/hadoop-mapreduce-client-nativetask-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-nativetask.jar
+echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-nativetask.jar >> .mfiles-hadoop-mapreduce
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-nativetask/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-nativetask.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-nativetask.pom >> .mfiles-hadoop-mapreduce
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-uploader/target/hadoop-mapreduce-client-uploader-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-uploader.jar
+echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-uploader.jar >> .mfiles-hadoop-mapreduce 
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-uploader/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-uploader.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-client-uploader.pom >> .mfiles-hadoop-mapreduce
 # mapreduce-examples
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-examples/target/hadoop-mapreduce-examples-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-examples.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-examples/target/hadoop-mapreduce-examples-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-examples.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-examples.jar >> .mfiles-hadoop-mapreduce-examples
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-examples/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-examples.pom
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-examples/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-examples.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-mapreduce-examples.pom >> .mfiles-hadoop-mapreduce-examples
 # maven-plugin
-install -m 0755 %{real_name}-maven-plugins/target/hadoop-maven-plugins-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-maven-plugins.jar
+install -m 0755 %{real_name}-maven-plugins/target/hadoop-maven-plugins-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-maven-plugins.jar
 echo %{_datadir}/java/%{real_name}/hadoop-maven-plugins.jar >> .mfiles-hadoop-maven-plugin
-install -m 0755 %{real_name}-maven-plugins/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-maven-plugins.pom
+install -m 0755 %{real_name}-maven-plugins/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-maven-plugins.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-maven-plugins.pom >> .mfiles-hadoop-maven-plugin
 # tests
-install -m 0755 %{real_name}-client-modules/%{real_name}-client/target/hadoop-client-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-client-tests.jar
+install -m 0755 %{real_name}-client-modules/%{real_name}-client/target/hadoop-client-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-client-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-client-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-common-project/%{real_name}-common/target/hadoop-common-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-common-tests.jar
+install -m 0755 %{real_name}-common-project/%{real_name}-common/target/hadoop-common-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-common-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-common-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs/target/hadoop-hdfs-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-hdfs-tests.jar
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs/target/hadoop-hdfs-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-hdfs-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-app/target/hadoop-mapreduce-client-app-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-app-tests.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-app/target/hadoop-mapreduce-client-app-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-app-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-app-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-jobclient/target/hadoop-mapreduce-client-jobclient-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-jobclient-tests.jar
+install -m 0755 %{real_name}-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-jobclient/target/hadoop-mapreduce-client-jobclient-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-mapreduce-client-jobclient-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-mapreduce-client-jobclient-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-minicluster/target/hadoop-minicluster-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-minicluster.jar
+install -m 0755 %{real_name}-minicluster/target/hadoop-minicluster-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-minicluster.jar
 echo %{_datadir}/java/%{real_name}/hadoop-minicluster.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-tools/%{real_name}-tools-dist/target/hadoop-tools-dist-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-tools-dist-tests.jar
+install -m 0755 %{real_name}-tools/%{real_name}-tools-dist/target/hadoop-tools-dist-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-tools-dist-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-tools-dist-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-common/target/hadoop-yarn-common-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-common-tests.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-common/target/hadoop-yarn-common-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-common-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-common-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-registry/target/hadoop-yarn-registry-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-registry-tests.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-registry/target/hadoop-yarn-registry-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-registry-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-registry-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-resourcemanager/target/hadoop-yarn-server-resourcemanager-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-resourcemanager-tests.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-resourcemanager/target/hadoop-yarn-server-resourcemanager-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-resourcemanager-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-resourcemanager-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-sharedcachemanager/target/hadoop-yarn-server-sharedcachemanager-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-sharedcachemanager-tests.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-sharedcachemanager/target/hadoop-yarn-server-sharedcachemanager-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-sharedcachemanager-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-sharedcachemanager-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-tests/target/hadoop-yarn-server-tests-%{version}-tests.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-tests-tests.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-tests/target/hadoop-yarn-server-tests-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-tests-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-tests-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-tests/target/hadoop-yarn-server-tests-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-tests.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-tests/target/hadoop-yarn-server-tests-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-tests.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-tests.jar >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-minicluster/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-minicluster.pom
+install -m 0755 %{real_name}-minicluster/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-minicluster.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-minicluster.pom >> .mfiles-hadoop-tests
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-tests/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-tests.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-tests/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-tests.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-tests.pom >> .mfiles-hadoop-tests
+install -m 0755 %{real_name}-hdfs-project/%{real_name}-hdfs-client/target/hadoop-hdfs-client-%{version}-tests.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-hdfs-client-tests.jar
+echo %{_datadir}/java/%{real_name}/hadoop-hdfs-client-tests.jar >> .mfiles-hadoop-tests
 # yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-api/target/hadoop-yarn-api-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-api.jar 
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-api/target/hadoop-yarn-api-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-api.jar 
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-api.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-applications-distributedshell/target/hadoop-yarn-applications-distributedshell-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-applications-distributedshell.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-applications-distributedshell/target/hadoop-yarn-applications-distributedshell-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-applications-distributedshell.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-applications-distributedshell.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-applications-unmanaged-am-launcher/target/hadoop-yarn-applications-unmanaged-am-launcher-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-applications-unmanaged-am-launcher.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-applications-unmanaged-am-launcher/target/hadoop-yarn-applications-unmanaged-am-launcher-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-applications-unmanaged-am-launcher.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-applications-unmanaged-am-launcher.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-client/target/hadoop-yarn-client-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-client.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-client/target/hadoop-yarn-client-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-client.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-client.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-common/target/hadoop-yarn-common-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-common.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-common/target/hadoop-yarn-common-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-common.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-common.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-registry/target/hadoop-yarn-registry-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-registry.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-registry/target/hadoop-yarn-registry-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-registry.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-registry.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-applicationhistoryservice/target/hadoop-yarn-server-applicationhistoryservice-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-applicationhistoryservice.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-applicationhistoryservice/target/hadoop-yarn-server-applicationhistoryservice-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-applicationhistoryservice.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-applicationhistoryservice.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-common/target/hadoop-yarn-server-common-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-common.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-common/target/hadoop-yarn-server-common-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-common.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-common.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-resourcemanager/target/hadoop-yarn-server-resourcemanager-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-resourcemanager.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-resourcemanager/target/hadoop-yarn-server-resourcemanager-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-resourcemanager.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-resourcemanager.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-sharedcachemanager/target/hadoop-yarn-server-sharedcachemanager-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-sharedcachemanager.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-sharedcachemanager/target/hadoop-yarn-server-sharedcachemanager-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-sharedcachemanager.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-sharedcachemanager.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-web-proxy/target/hadoop-yarn-server-web-proxy-%{version}.jar %{buildroot}/%{_datadir}/java/%{real_name}/hadoop-yarn-server-web-proxy.jar
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-web-proxy/target/hadoop-yarn-server-web-proxy-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-web-proxy.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-web-proxy.jar >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-api/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-api.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-nodemanager/target/hadoop-yarn-server-nodemanager-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-nodemanager.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-nodemanager.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-router/target/hadoop-yarn-server-router-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-router.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-router.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-router/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-router.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-router.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timeline-pluginstorage/target/hadoop-yarn-server-timeline-pluginstorage-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-timeline-pluginstorage.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-timeline-pluginstorage.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timeline-pluginstorage/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timeline-pluginstorage.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timeline-pluginstorage.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-api/target/hadoop-yarn-services-api-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-services-api.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-services-api.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-api/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-api.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-api.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-core/target/hadoop-yarn-services-core-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-services-core.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-services-core.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-core/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-core.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-core.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-api/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-api.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-api.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/hadoop-yarn-applications-distributedshell/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications-distributedshell.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/hadoop-yarn-applications-distributedshell/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications-distributedshell.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications-distributedshell.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/hadoop-yarn-applications-unmanaged-am-launcher/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications-unmanaged-am-launcher.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/hadoop-yarn-applications-unmanaged-am-launcher/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications-unmanaged-am-launcher.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications-unmanaged-am-launcher.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-applications.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-client/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-client.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-client/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-client.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-client.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-common/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-common.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-common/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-common.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-common.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-registry/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-registry.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-registry/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-registry.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-registry.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-applicationhistoryservice/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-applicationhistoryservice.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-applicationhistoryservice/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-applicationhistoryservice.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-applicationhistoryservice.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-common/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-common.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-common/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-common.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-common.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-nodemanager/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-nodemanager.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-nodemanager/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-nodemanager.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-nodemanager.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-resourcemanager/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-resourcemanager.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-resourcemanager/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-resourcemanager.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-resourcemanager.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-sharedcachemanager/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-sharedcachemanager.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-sharedcachemanager/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-sharedcachemanager.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-sharedcachemanager.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-web-proxy/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-web-proxy.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/hadoop-yarn-server-web-proxy/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-web-proxy.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-web-proxy.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server.pom >> .mfiles-hadoop-yarn
-install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-site/pom.xml %{buildroot}/%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-site.pom
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-site/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-site.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-site.pom >> .mfiles-hadoop-yarn
 echo %{_sysconfdir}/%{real_name}/yarnservice-log4j.properties >> .mfiles-hadoop-yarn
 echo %{_prefix}/bin/container-executor >> .mfiles-hadoop-yarn
@@ -598,86 +661,96 @@ echo %{_prefix}/sbin/FederationStateStore/* >> .mfiles-hadoop-yarn
 # copy script folders
 for dir in bin libexec sbin
 do
-  cp -arf $basedir/$dir %{buildroot}/%{_prefix}
-  cp -arf $hdfsdir/$dir %{buildroot}/%{_prefix}
-  cp -arf $mapreddir/$dir %{buildroot}/%{_prefix}
-  cp -arf $yarndir/$dir %{buildroot}/%{_prefix}
+  cp -arf $basedir/$dir %{buildroot}%{_prefix}
+  cp -arf $hdfsdir/$dir %{buildroot}%{_prefix}
+  cp -arf $mapreddir/$dir %{buildroot}%{_prefix}
+  cp -arf $yarndir/$dir %{buildroot}%{_prefix}
 done
 
 # This binary is obsoleted and causes a conflict with qt-devel
-rm -rf %{buildroot}/%{_bindir}/rcc
+rm -rf %{buildroot}%{_bindir}/rcc
 
 # Duplicate files
-rm -f %{buildroot}/%{_sbindir}/hdfs-config.sh
+rm -f %{buildroot}%{_sbindir}/hdfs-config.sh
 
 # copy config files
-cp -arf $basedir/etc/* %{buildroot}/%{_sysconfdir}
-cp -arf $httpfsdir/etc/* %{buildroot}/%{_sysconfdir}
-cp -arf $mapreddir/etc/* %{buildroot}/%{_sysconfdir}
-cp -arf $yarndir/etc/* %{buildroot}/%{_sysconfdir}
+cp -arf $basedir/etc/* %{buildroot}%{_sysconfdir}
+cp -arf $httpfsdir/etc/* %{buildroot}%{_sysconfdir}
+cp -arf $mapreddir/etc/* %{buildroot}%{_sysconfdir}
+cp -arf $yarndir/etc/* %{buildroot}%{_sysconfdir}
 
 # copy binaries
-cp -arf $basedir/lib/native/libhadoop.so* %{buildroot}/%{_libdir}/%{real_name}
-chrpath --delete %{buildroot}/%{_libdir}/%{real_name}/*
-cp -arf ./hadoop-hdfs-project/hadoop-hdfs-native-client/target/hadoop-hdfs-native-client-%{version}/include/hdfs.h %{buildroot}/%{_includedir}/%{real_name}
-cp -arf ./hadoop-hdfs-project/hadoop-hdfs-native-client/target/hadoop-hdfs-native-client-%{version}/lib/native/libhdfs.so* %{buildroot}/%{_libdir}
-chrpath --delete %{buildroot}/%{_libdir}/libhdfs*
+cp -arf $basedir/lib/native/libhadoop.so* %{buildroot}%{_libdir}/%{real_name}
+chrpath --delete %{buildroot}%{_libdir}/%{real_name}/*
+cp -arf ./hadoop-hdfs-project/hadoop-hdfs-native-client/target/hadoop-hdfs-native-client-%{version}/include/hdfs.h %{buildroot}%{_includedir}/%{real_name}
+cp -arf ./hadoop-hdfs-project/hadoop-hdfs-native-client/target/hadoop-hdfs-native-client-%{version}/lib/native/libhdfs.so* %{buildroot}%{_libdir}
+chrpath --delete %{buildroot}%{_libdir}/libhdfs*
 
 # Not needed since httpfs is deployed with existing systemd setup
-rm -f %{buildroot}/%{_sbindir}/httpfs.sh
-rm -f %{buildroot}/%{_libexecdir}/httpfs-config.sh
-rm -f %{buildroot}/%{_bindir}/httpfs-env.sh
+rm -f %{buildroot}%{_sbindir}/httpfs.sh
+rm -f %{buildroot}%{_libexecdir}/httpfs-config.sh
+rm -f %{buildroot}%{_bindir}/httpfs-env.sh
 
 # Remove files with .cmd extension
 find %{buildroot} -name *.cmd | xargs rm -f 
 
 # Modify hadoop-env.sh to point to correct locations for JAVA_HOME
 # and JSVC_HOME.
-sed -i "s|\${JAVA_HOME}|/usr/lib/jvm/jre|" %{buildroot}/%{_sysconfdir}/%{real_name}/%{real_name}-env.sh
-sed -i "s|\${JSVC_HOME}|/usr/bin|" %{buildroot}/%{_sysconfdir}/%{real_name}/%{real_name}-env.sh
+sed -i "s|\${JAVA_HOME}|/usr/lib/jvm/jre|" %{buildroot}%{_sysconfdir}/%{real_name}/%{real_name}-env.sh
+sed -i "s|\${JSVC_HOME}|/usr/bin|" %{buildroot}%{_sysconfdir}/%{real_name}/%{real_name}-env.sh
 
 # Ensure the java provided DocumentBuilderFactory is used
-sed -i "s|\(HADOOP_OPTS.*=.*\)\$HADOOP_CLIENT_OPTS|\1 -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl \$HADOOP_CLIENT_OPTS|" %{buildroot}/%{_sysconfdir}/%{real_name}/%{real_name}-env.sh
-echo "export YARN_OPTS=\"\$YARN_OPTS -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl\"" >> %{buildroot}/%{_sysconfdir}/%{real_name}/yarn-env.sh
+sed -i "s|\(HADOOP_OPTS.*=.*\)\$HADOOP_CLIENT_OPTS|\1 -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl \$HADOOP_CLIENT_OPTS|" %{buildroot}%{_sysconfdir}/%{real_name}/%{real_name}-env.sh
+echo "export YARN_OPTS=\"\$YARN_OPTS -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl\"" >> %{buildroot}%{_sysconfdir}/%{real_name}/yarn-env.sh
 
 # Workaround for bz1012059
-install -d -m 0755 %{buildroot}/%{_mavenpomdir}/
-install -pm 644 hadoop-project-dist/pom.xml %{buildroot}/%{_mavenpomdir}/JPP.%{real_name}-%{real_name}-project-dist.pom
-%{__ln_s} %{_jnidir}/%{real_name}/hadoop-common.jar %{buildroot}/%{_datadir}/%{real_name}/common
-%{__ln_s} %{_javadir}/%{real_name}/hadoop-hdfs.jar %{buildroot}/%{_datadir}/%{real_name}/hdfs
-%{__ln_s} %{_javadir}/%{real_name}/hadoop-client.jar %{buildroot}/%{_datadir}/%{real_name}/client
+install -d -m 0755 %{buildroot}%{_mavenpomdir}/
+install -pm 644 hadoop-project-dist/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{real_name}-%{real_name}-project-dist.pom
+%{__ln_s} %{_jnidir}/%{real_name}/hadoop-common.jar %{buildroot}%{_datadir}/%{real_name}/common
+%{__ln_s} %{_javadir}/%{real_name}/hadoop-hdfs.jar %{buildroot}%{_datadir}/%{real_name}/hdfs
+%{__ln_s} %{_javadir}/%{real_name}/hadoop-client.jar %{buildroot}%{_datadir}/%{real_name}/client
 
 # client jar depenencies
-copy_dep_jars hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client/lib %{buildroot}/%{_datadir}/%{real_name}/client/lib
-%{_bindir}/xmvn-subst %{buildroot}/%{_datadir}/%{real_name}/client/lib
+copy_dep_jars hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client/lib %{buildroot}%{_datadir}/%{real_name}/client/lib
+%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/client/lib
 pushd  hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client/lib
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/client/lib
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/client/lib
 popd
+cp -f hadoop-client-modules/%{real_name}-client-api/target/hadoop-client-api-%{version}.jar hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client
+cp -f hadoop-client-modules/%{real_name}-client-minicluster/target/hadoop-client-minicluster-%{version}.jar hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client
+cp -f hadoop-client-modules/%{real_name}-client-runtime/target/hadoop-client-runtime-%{version}.jar hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client
 pushd  hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/client
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/client
 popd
 
 # common jar depenencies
-copy_dep_jars $basedir/share/%{real_name}/common/lib %{buildroot}/%{_datadir}/%{real_name}/common/lib
-%{_bindir}/xmvn-subst %{buildroot}/%{_datadir}/%{real_name}/common/lib
+copy_dep_jars $basedir/share/%{real_name}/common/lib %{buildroot}%{_datadir}/%{real_name}/common/lib
+%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/common/lib
+cp -f hadoop-common-project/%{real_name}-kms/target/hadoop-kms-%{version}.jar $basedir/share/%{real_name}/common
+cp -f hadoop-common-project/%{real_name}-nfs/target/hadoop-nfs-%{version}.jar $basedir/share/%{real_name}/common 
 pushd $basedir/share/%{real_name}/common
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/common
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/common
 popd
 pushd $basedir/share/%{real_name}/common/lib
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/common/lib
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/common/lib
 popd
 
 # hdfs jar dependencies
-copy_dep_jars $hdfsdir/share/%{real_name}/hdfs/lib %{buildroot}/%{_datadir}/%{real_name}/hdfs/lib
-%{_bindir}/xmvn-subst %{buildroot}/%{_datadir}/%{real_name}/hdfs/lib
-%{__ln_s} %{_jnidir}/%{real_name}/%{real_name}-hdfs-bkjournal.jar %{buildroot}/%{_datadir}/%{real_name}/hdfs/lib
+copy_dep_jars $hdfsdir/share/%{real_name}/hdfs/lib %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
+%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
+%{__ln_s} %{_jnidir}/%{real_name}/%{real_name}-hdfs-bkjournal.jar %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
+cp -f hadoop-hdfs-project/%{real_name}-hdfs-client/target/hadoop-hdfs-client-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
+cp -f hadoop-hdfs-project/%{real_name}-hdfs-httpfs/target/hadoop-hdfs-httpfs-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
+cp -f hadoop-hdfs-project/%{real_name}-hdfs-native-client/target/hadoop-hdfs-native-client-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
+cp -f hadoop-hdfs-project/%{real_name}-hdfs-nfs/target/hadoop-hdfs-nfs-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
+cp -f hadoop-hdfs-project/%{real_name}-hdfs-rbf/target/hadoop-hdfs-rbf-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
 pushd $hdfsdir/share/%{real_name}/hdfs
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/hdfs
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/hdfs
 popd
 
 # httpfs
 # Create the webapp directory structure
-pushd %{buildroot}/%{_sharedstatedir}/tomcats/httpfs
+pushd %{buildroot}%{_sharedstatedir}/tomcats/httpfs
   %{__ln_s} %{_datadir}/%{real_name}/httpfs/tomcat/conf conf
   %{__ln_s} %{_datadir}/%{real_name}/httpfs/tomcat/lib lib
   %{__ln_s} %{_datadir}/%{real_name}/httpfs/tomcat/logs logs
@@ -692,30 +765,30 @@ popd
 for cfgfile in catalina.policy catalina.properties context.xml \
   tomcat.conf web.xml server.xml logging.properties;
 do
-  cp -a %{_sysconfdir}/tomcat/$cfgfile %{buildroot}/%{_sysconfdir}/%{real_name}/tomcat
+  cp -a %{_sysconfdir}/tomcat/$cfgfile %{buildroot}%{_sysconfdir}/%{real_name}/tomcat
 done
 
 # Replace, in place, the Tomcat configuration files delivered with the current
 # Fedora release. See BZ#1295968 for some reason.
-sed -i -e 's/8005/${httpfs.admin.port}/g' -e 's/8080/${httpfs.http.port}/g' %{buildroot}/%{_sysconfdir}/%{real_name}/tomcat/server.xml
-sed -i -e 's/catalina.base/httpfs.log.dir/g' %{buildroot}/%{_sysconfdir}/%{real_name}/tomcat/logging.properties
+sed -i -e 's/8005/${httpfs.admin.port}/g' -e 's/8080/${httpfs.http.port}/g' %{buildroot}%{_sysconfdir}/%{real_name}/tomcat/server.xml
+sed -i -e 's/catalina.base/httpfs.log.dir/g' %{buildroot}%{_sysconfdir}/%{real_name}/tomcat/logging.properties
 # Given the permission, only the root and tomcat users can access to that file,
 # not the build user. So, the build would fail here.
-install -m 660 %{SOURCE9} %{buildroot}/%{_sysconfdir}/%{real_name}/tomcat/tomcat-users.xml
+install -m 660 %{SOURCE9} %{buildroot}%{_sysconfdir}/%{real_name}/tomcat/tomcat-users.xml
 
 # Copy the httpfs webapp
-cp -arf %{real_name}-hdfs-project/%{real_name}-hdfs-httpfs/target/classes/webapps/webhdfs %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps
+cp -arf %{real_name}-hdfs-project/%{real_name}-hdfs-httpfs/target/classes/webapps/webhdfs %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps
 
 # Tell tomcat to follow symlinks
-install -d -m 0766 %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/META-INF/
-cp %{SOURCE5} %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/META-INF/
+install -d -m 0766 %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/META-INF/
+cp %{SOURCE5} %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/META-INF/
 
 # Remove the jars included in the webapp and create symlinks
-rm -f %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/tools*.jar
-rm -f %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/tomcat-*.jar
-%{_bindir}/xmvn-subst %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib
+rm -f %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/tools*.jar
+rm -f %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/tomcat-*.jar
+%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib
 
-pushd %{buildroot}/%{_datadir}/%{real_name}/httpfs/tomcat
+pushd %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat
   %{__ln_s} %{_datadir}/tomcat/bin bin
   %{__ln_s} %{_sysconfdir}/%{real_name}/tomcat conf
   %{__ln_s} %{_datadir}/tomcat/lib lib
@@ -726,24 +799,32 @@ popd
 
 # mapreduce jar dependencies
 mrdir='%{real_name}-mapreduce-project/target/%{real_name}-mapreduce-%{hadoop_version}'
-copy_dep_jars $mrdir/share/%{real_name}/mapreduce/lib %{buildroot}/%{_datadir}/%{real_name}/mapreduce/lib
-%{_bindir}/xmvn-subst %{buildroot}/%{_datadir}/%{real_name}/mapreduce/lib
-%{__ln_s} %{_javadir}/%{real_name}/%{real_name}-annotations.jar %{buildroot}/%{_datadir}/%{real_name}/mapreduce/lib
+copy_dep_jars $mrdir/share/%{real_name}/mapreduce/lib %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
+%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
+%{__ln_s} %{_javadir}/%{real_name}/%{real_name}-annotations.jar %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
+cp -f hadoop-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-nativetask/target/hadoop-mapreduce-client-nativetask-%{version}.jar $mrdir/share/%{real_name}/mapreduce
+cp -f hadoop-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-uploader/target/hadoop-mapreduce-client-uploader-%{version}.jar $mrdir/share/%{real_name}/mapreduce
+cp -f hadoop-mapreduce-project/%{real_name}-mapreduce-examples/target/hadoop-mapreduce-examples-%{version}.jar $mrdir/share/%{real_name}/mapreduce
 pushd $mrdir/share/%{real_name}/mapreduce
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/mapreduce
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/mapreduce
 popd
 
 # yarn jar dependencies
 yarndir='%{real_name}-yarn-project/target/%{real_name}-yarn-project-%{hadoop_version}'
-copy_dep_jars $yarndir/share/%{real_name}/yarn/lib %{buildroot}/%{_datadir}/%{real_name}/yarn/lib
-%{_bindir}/xmvn-subst %{buildroot}/%{_datadir}/%{real_name}/yarn/lib
-%{__ln_s} %{_javadir}/%{real_name}/%{real_name}-annotations.jar %{buildroot}/%{_datadir}/%{real_name}/yarn/lib
+copy_dep_jars $yarndir/share/%{real_name}/yarn/lib %{buildroot}%{_datadir}/%{real_name}/yarn/lib
+%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/yarn/lib
+%{__ln_s} %{_javadir}/%{real_name}/%{real_name}-annotations.jar %{buildroot}%{_datadir}/%{real_name}/yarn/lib
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-nodemanager/target/hadoop-yarn-server-nodemanager-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-router/target/hadoop-yarn-server-router-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timeline-pluginstorage/target/hadoop-yarn-server-timeline-pluginstorage-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-api/target/hadoop-yarn-services-api-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-core/target/hadoop-yarn-services-core-%{version}.jar $yarndir/share/%{real_name}/yarn
 pushd $yarndir/share/%{real_name}/yarn
-  link_hadoop_jars %{buildroot}/%{_datadir}/%{real_name}/yarn
+  link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/yarn
 popd
 
 # Install hdfs webapp bits
-cp -arf hadoop-hdfs-project/hadoop-hdfs/target/webapps/* %{buildroot}/%{_datadir}/%{real_name}/hdfs/webapps
+cp -arf hadoop-hdfs-project/hadoop-hdfs/target/webapps/* %{buildroot}%{_datadir}/%{real_name}/hdfs/webapps
 
 # hadoop layout. Convert to appropriate lib location for 32 and 64 bit archs
 lib=$(echo %{?_libdir} | sed -e 's:/usr/\(.*\):\1:')
@@ -751,10 +832,16 @@ if [ "$lib" = "%_libdir" ]; then
   echo "_libdir is not located in /usr.  Lib location is wrong"
   exit 1
 fi
-sed -e "s|HADOOP_COMMON_LIB_NATIVE_DIR\s*=.*|HADOOP_COMMON_LIB_NATIVE_DIR=$lib/%{real_name}|" %{SOURCE1} > %{buildroot}/%{_libexecdir}/%{real_name}-layout.sh
+sed -e "s|HADOOP_COMMON_LIB_NATIVE_DIR\s*=.*|HADOOP_COMMON_LIB_NATIVE_DIR=$lib/%{real_name}|" %{SOURCE1} > %{buildroot}%{_libexecdir}/%{real_name}-layout.sh
+
+# Default config
+cp -f %{SOURCE10} %{buildroot}%{_sysconfdir}/%{real_name}/core-site.xml
+cp -f %{SOURCE11} %{buildroot}%{_sysconfdir}/%{real_name}/hdfs-site.xml
+cp -f %{SOURCE12} %{buildroot}%{_sysconfdir}/%{real_name}/mapred-site.xml
+cp -f %{SOURCE13} %{buildroot}%{_sysconfdir}/%{real_name}/yarn-site.xml
 
 # systemd configuration
-install -d -m 0755 %{buildroot}/%{_unitdir}/
+install -d -m 0755 %{buildroot}%{_unitdir}/
 for service in %{hdfs_services} %{mapreduce_services} %{yarn_services}
 do
   s=`echo $service | cut -d'-' -f 2 | cut -d'.' -f 1`
@@ -776,25 +863,25 @@ do
     echo "Failed to determine type of service for %service"
     exit 1
   fi
-  sed -e "s|DAEMON|$daemon|g" $src > %{buildroot}/%{_unitdir}/%{real_name}-$s.service
+  sed -e "s|DAEMON|$daemon|g" $src > %{buildroot}%{_unitdir}/%{real_name}-$s.service
 done
 
-cp -f %{SOURCE7} %{buildroot}/%{_sysconfdir}/sysconfig/tomcat@httpfs
+cp -f %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/tomcat@httpfs
 
 # Ensure /var/run directories are recreated on boot
-echo "d %{_var}/run/%{real_name}-yarn 0775 yarn hadoop -" > %{buildroot}/%{_tmpfilesdir}/%{real_name}-yarn.conf
-echo "d %{_var}/run/%{real_name}-hdfs 0775 hdfs hadoop -" > %{buildroot}/%{_tmpfilesdir}/%{real_name}-hdfs.conf
-echo "d %{_var}/run/%{real_name}-mapreduce 0775 mapred hadoop -" > %{buildroot}/%{_tmpfilesdir}/%{real_name}-mapreduce.conf
+echo "d %{_var}/run/%{real_name}-yarn 0775 yarn hadoop -" > %{buildroot}%{_tmpfilesdir}/%{real_name}-yarn.conf
+echo "d %{_var}/run/%{real_name}-hdfs 0775 hdfs hadoop -" > %{buildroot}%{_tmpfilesdir}/%{real_name}-hdfs.conf
+echo "d %{_var}/run/%{real_name}-mapreduce 0775 mapred hadoop -" > %{buildroot}%{_tmpfilesdir}/%{real_name}-mapreduce.conf
 
 # logrotate config
 for type in hdfs httpfs yarn mapreduce
 do
-  sed -e "s|NAME|$type|" %{SOURCE6} > %{buildroot}/%{_sysconfdir}/logrotate.d/%{real_name}-$type
+  sed -e "s|NAME|$type|" %{SOURCE6} > %{buildroot}%{_sysconfdir}/logrotate.d/%{real_name}-$type
 done
-sed -i "s|{|%{_var}/log/hadoop-hdfs/*.audit\n{|" %{buildroot}/%{_sysconfdir}/logrotate.d/%{real_name}-hdfs
+sed -i "s|{|%{_var}/log/hadoop-hdfs/*.audit\n{|" %{buildroot}%{_sysconfdir}/logrotate.d/%{real_name}-hdfs
 
 # hdfs init script
-install -m 755 %{SOURCE8} %{buildroot}/%{_sbindir}
+install -m 755 %{SOURCE8} %{buildroot}%{_sbindir}
 
 %pretrans -p <lua> hdfs
 path = "%{_datadir}/%{real_name}/hdfs/webapps"
@@ -901,6 +988,8 @@ fi
 %dir %{_datadir}/%{real_name}
 %dir %{_datadir}/%{real_name}/common
 %{_datadir}/%{real_name}/common/lib
+%{_datadir}/%{real_name}/common/hadoop-kms.jar
+%{_datadir}/%{real_name}/common/hadoop-nfs.jar
 %{_libexecdir}/%{real_name}-config.sh
 %{_libexecdir}/%{real_name}-layout.sh
 
@@ -927,6 +1016,7 @@ fi
 %{_libdir}/libhdfs.so
 
 %files -f .mfiles-%{real_name}-hdfs hdfs
+%config(noreplace) %{_sysconfdir}/%{real_name}/hdfs-site.xml
 %{_datadir}/%{real_name}/hdfs
 %{_unitdir}/%{real_name}-datanode.service
 %{_unitdir}/%{real_name}-namenode.service
@@ -1012,6 +1102,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Thu Apr 01 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-3
+- Add hdfs,mapreduce and yarn jar package to rpm package, and modify subpackage httpfs's install require
+
 * Wed Mar 24 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-2
 - Modify install require
 
