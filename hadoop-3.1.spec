@@ -11,7 +11,7 @@
 %define real_name hadoop
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 4
+Release: 5
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -35,7 +35,7 @@ Source13: %{real_name}-yarn-site.xml
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{release}-root
 BuildRequires: java-1.8.0-openjdk-devel maven hostname maven-local tomcat cmake snappy openssl-devel 
 BuildRequires: cyrus-sasl-devel chrpath systemd protobuf2-compiler protobuf2-devel protobuf2-java protobuf2
-Requires: java-1.8.0-openjdk
+Requires: java-1.8.0-openjdk protobuf2-java apache-zookeeper
 
 %description
 Apache Hadoop is a framework that allows for the distributed processing of
@@ -68,6 +68,7 @@ Obsoletes: %{name}-javadoc < 2.4.1-22%{?dist}
 # These are required to meet the symlinks for the classpath
 Requires: antlr-tool
 Requires: apache-commons-beanutils
+Requires: apache-zookeeper
 Requires: avalon-framework
 Requires: avalon-logkit
 Requires: checkstyle
@@ -91,6 +92,7 @@ Requires: relaxngDatatype
 Requires: servlet3
 Requires: snappy-java
 Requires: which
+Requires: protobuf2-java
 
 %description common
 Apache Hadoop is a framework that allows for the distributed processing of
@@ -621,6 +623,14 @@ install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-ap
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-api.pom >> .mfiles-hadoop-yarn
 install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-core/target/hadoop-yarn-services-core-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-services-core.jar
 echo %{_datadir}/java/%{real_name}/hadoop-yarn-services-core.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice/target/hadoop-yarn-server-timelineservice-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice-hbase/%{real_name}-yarn-server-timelineservice-hbase-client/target/hadoop-yarn-server-timelineservice-hbase-client-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice-hbase-client.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice-hbase-client.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice-hbase/%{real_name}-yarn-server-timelineservice-hbase-common/target/hadoop-yarn-server-timelineservice-hbase-common-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice-hbase-common.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice-hbase-common.jar >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/target/%{real_name}-yarn-project-%{version}/share/%{real_name}/yarn/timelineservice/hadoop-yarn-server-timelineservice-hbase-coprocessor-%{version}.jar %{buildroot}%{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice-hbase-coprocessor.jar
+echo %{_datadir}/java/%{real_name}/hadoop-yarn-server-timelineservice-hbase-coprocessor.jar >> .mfiles-hadoop-yarn
 install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-core/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-core.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-services-core.pom >> .mfiles-hadoop-yarn
 install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-api/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-api.pom
@@ -653,6 +663,12 @@ install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-se
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server.pom >> .mfiles-hadoop-yarn
 install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-site/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-site.pom
 echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-site.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timelineservice.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timelineservice.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice-hbase/%{real_name}-yarn-server-timelineservice-hbase-client/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timelineservice-hbase-client.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timelineservice-hbase-client.pom >> .mfiles-hadoop-yarn
+install -m 0755 %{real_name}-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice-hbase/%{real_name}-yarn-server-timelineservice-hbase-common/pom.xml %{buildroot}%{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timelineservice-hbase-common.pom
+echo %{_datadir}/maven-poms/%{real_name}/hadoop-yarn-server-timelineservice-hbase-common.pom >> .mfiles-hadoop-yarn
 echo %{_sysconfdir}/%{real_name}/yarnservice-log4j.properties >> .mfiles-hadoop-yarn
 echo %{_prefix}/bin/container-executor >> .mfiles-hadoop-yarn
 echo %{_prefix}/bin/test-container-executor >> .mfiles-hadoop-yarn
@@ -819,6 +835,10 @@ cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name
 cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timeline-pluginstorage/target/hadoop-yarn-server-timeline-pluginstorage-%{version}.jar $yarndir/share/%{real_name}/yarn
 cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-api/target/hadoop-yarn-services-api-%{version}.jar $yarndir/share/%{real_name}/yarn
 cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-applications/%{real_name}-yarn-services/%{real_name}-yarn-services-core/target/hadoop-yarn-services-core-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice/target/hadoop-yarn-server-timelineservice-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice-hbase/%{real_name}-yarn-server-timelineservice-hbase-client/target/hadoop-yarn-server-timelineservice-hbase-client-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-timelineservice-hbase/%{real_name}-yarn-server-timelineservice-hbase-common/target/hadoop-yarn-server-timelineservice-hbase-common-%{version}.jar $yarndir/share/%{real_name}/yarn
+cp -f hadoop-yarn-project/target/%{real_name}-yarn-project-%{version}/share/%{real_name}/yarn/timelineservice/hadoop-yarn-server-timelineservice-hbase-coprocessor-%{version}.jar $yarndir/share/%{real_name}/yarn
 pushd $yarndir/share/%{real_name}/yarn
   link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/yarn
 popd
@@ -1102,6 +1122,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Thu Apr 08 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-5
+- Add hadoop-yarn-server-timelineservice.jar to rpm package
+
 * Tue Mar 30 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-4
 - Add hdfs,mapreduce and yarn jar package to rpm package
 
