@@ -11,7 +11,7 @@ ExecStart=/usr/sbin/mr-jobhistory-daemon.sh start DAEMON
 ExecStop=/usr/sbin/mr-jobhistory-daemon.sh stop DAEMON
 User=mapred
 Group=hadoop
-PIDFile=/var/run/hadoop-mapreduce/mapred-mapred-DAEMON.pid
+PIDFile=/run/hadoop-mapreduce/hadoop-mapred-DAEMON.pid
 LimitNOFILE=32768
 LimitNPROC=65536
 
