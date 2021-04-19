@@ -9,9 +9,10 @@
 %global __requires_exclude_from ^%{_libdir}/%{real_name}/libhadoop.so$
 %global __provides_exclude_from ^%{_libdir}/%{real_name}/.*$
 %define real_name hadoop
+%define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 5
+Release: 6
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -35,6 +36,7 @@ Source13: %{real_name}-yarn-site.xml
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{release}-root
 BuildRequires: java-1.8.0-openjdk-devel maven hostname maven-local tomcat cmake snappy openssl-devel 
 BuildRequires: cyrus-sasl-devel chrpath systemd protobuf2-compiler protobuf2-devel protobuf2-java protobuf2
+Buildrequires: leveldbjni leveldb-java hawtjni-runtime
 Requires: java-1.8.0-openjdk protobuf2-java apache-zookeeper
 
 %description
@@ -84,6 +86,7 @@ Requires: javamail
 Requires: jettison
 Requires: jetty8
 Requires: jsr-311
+Requires: leveldb
 Requires: mockito
 Requires: objectweb-asm
 Requires: objenesis
@@ -226,6 +229,7 @@ offering local computation and storage.
 This package contains test related resources for Apache Hadoop.
 
 %package yarn
+BuildArch: noarch
 Summary: Apache Hadoop YARN
 Requires: %{name}-common = %{version}-%{release}
 Requires: %{name}-mapreduce = %{version}-%{release}
@@ -261,6 +265,19 @@ This package contains files needed to run Apache Hadoop YARN in secure mode.
 %prep
 %autosetup -p1 -n %{real_name}-%{version}-src
 mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=2.5.0 -Dclassifier=linux-aarch_64 -Dpackaging=exe -Dfile=/usr/bin/protoc
+mvn install:install-file -DgroupId=org.fusesource.leveldbjni -DartifactId=leveldbjni-all -Dversion=1.8 -Dpackaging=jar -Dfile=/usr/lib/java/leveldbjni-all.jar
+mvn install:install-file -DgroupId=org.fusesource.leveldbjni -DartifactId=leveldbjni -Dversion=1.8 -Dpackaging=jar -Dfile=/usr/lib/java/leveldbjni/leveldbjni.jar
+mvn install:install-file -DgroupId=org.iq80.leveldb -DartifactId=leveldb-api -Dversion=0.7 -Dpackaging=jar -Dfile=/usr/share/java/leveldb-java/leveldb-api.jar
+mvn install:install-file -DgroupId=org.iq80.leveldb -DartifactId=leveldb-benchmark -Dversion=0.7 -Dpackaging=jar -Dfile=/usr/share/java/leveldb-java/leveldb-benchmark.jar
+mvn install:install-file -DgroupId=org.iq80.leveldb -DartifactId=leveldb -Dversion=0.7 -Dpackaging=jar -Dfile=/usr/share/java/leveldb-java/leveldb.jar
+mvn install:install-file -DgroupId=orn.fusesource.hawtjni -DartifactId=hawtjni-runtime -Dversion=1.16 -Dpackaging=jar -Dfile=/usr/lib/java/hawtjni/hawtjni-runtime.jar
+
+%pom_add_dep org.iq80.leveldb:leveldb-api:0.7 hadoop-hdfs-project/hadoop-hdfs
+%pom_add_dep org.iq80.leveldb:leveldb-api:0.7 hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-web-proxy
+%pom_add_dep org.iq80.leveldb:leveldb-api:0.7 hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-applicationhistoryservice
+%pom_add_dep org.iq80.leveldb:leveldb-api:0.7 hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-common
+%pom_add_dep org.fusesource.leveldbjni:leveldbjni:1.8 hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server
+%pom_add_dep org.fusesource.hawtjni:hawtjni-runtime:1.16 hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-applicationhistoryservice
 
 %pom_disable_module hadoop-minikdc hadoop-common-project
 %pom_disable_module hadoop-pipes hadoop-tools
@@ -728,7 +745,6 @@ install -pm 644 hadoop-project-dist/pom.xml %{buildroot}%{_mavenpomdir}/JPP.%{re
 
 # client jar depenencies
 copy_dep_jars hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client/lib %{buildroot}%{_datadir}/%{real_name}/client/lib
-%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/client/lib
 pushd  hadoop-client-modules/%{real_name}-client/target/%{real_name}-client-%{hadoop_version}/share/%{real_name}/client/lib
   link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/client/lib
 popd
@@ -741,9 +757,9 @@ popd
 
 # common jar depenencies
 copy_dep_jars $basedir/share/%{real_name}/common/lib %{buildroot}%{_datadir}/%{real_name}/common/lib
-%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/common/lib
 cp -f hadoop-common-project/%{real_name}-kms/target/hadoop-kms-%{version}.jar $basedir/share/%{real_name}/common
 cp -f hadoop-common-project/%{real_name}-nfs/target/hadoop-nfs-%{version}.jar $basedir/share/%{real_name}/common 
+cp -f hadoop-common-project/%{real_name}-auth/target/hadoop-auth-%{version}.jar $basedir/share/%{real_name}/common
 pushd $basedir/share/%{real_name}/common
   link_hadoop_jars %{buildroot}%{_datadir}/%{real_name}/common
 popd
@@ -753,7 +769,6 @@ popd
 
 # hdfs jar dependencies
 copy_dep_jars $hdfsdir/share/%{real_name}/hdfs/lib %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
-%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
 %{__ln_s} %{_jnidir}/%{real_name}/%{real_name}-hdfs-bkjournal.jar %{buildroot}%{_datadir}/%{real_name}/hdfs/lib
 cp -f hadoop-hdfs-project/%{real_name}-hdfs-client/target/hadoop-hdfs-client-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
 cp -f hadoop-hdfs-project/%{real_name}-hdfs-httpfs/target/hadoop-hdfs-httpfs-%{version}.jar $hdfsdir/share/%{real_name}/hdfs
@@ -802,7 +817,6 @@ cp %{SOURCE5} %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs
 # Remove the jars included in the webapp and create symlinks
 rm -f %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/tools*.jar
 rm -f %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/tomcat-*.jar
-%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib
 
 pushd %{buildroot}%{_datadir}/%{real_name}/httpfs/tomcat
   %{__ln_s} %{_datadir}/tomcat/bin bin
@@ -816,7 +830,6 @@ popd
 # mapreduce jar dependencies
 mrdir='%{real_name}-mapreduce-project/target/%{real_name}-mapreduce-%{hadoop_version}'
 copy_dep_jars $mrdir/share/%{real_name}/mapreduce/lib %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
-%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
 %{__ln_s} %{_javadir}/%{real_name}/%{real_name}-annotations.jar %{buildroot}%{_datadir}/%{real_name}/mapreduce/lib
 cp -f hadoop-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-nativetask/target/hadoop-mapreduce-client-nativetask-%{version}.jar $mrdir/share/%{real_name}/mapreduce
 cp -f hadoop-mapreduce-project/%{real_name}-mapreduce-client/%{real_name}-mapreduce-client-uploader/target/hadoop-mapreduce-client-uploader-%{version}.jar $mrdir/share/%{real_name}/mapreduce
@@ -828,7 +841,6 @@ popd
 # yarn jar dependencies
 yarndir='%{real_name}-yarn-project/target/%{real_name}-yarn-project-%{hadoop_version}'
 copy_dep_jars $yarndir/share/%{real_name}/yarn/lib %{buildroot}%{_datadir}/%{real_name}/yarn/lib
-%{_bindir}/xmvn-subst %{buildroot}%{_datadir}/%{real_name}/yarn/lib
 %{__ln_s} %{_javadir}/%{real_name}/%{real_name}-annotations.jar %{buildroot}%{_datadir}/%{real_name}/yarn/lib
 cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-nodemanager/target/hadoop-yarn-server-nodemanager-%{version}.jar $yarndir/share/%{real_name}/yarn
 cp -f hadoop-yarn-project/%{real_name}-yarn/%{real_name}-yarn-server/%{real_name}-yarn-server-router/target/hadoop-yarn-server-router-%{version}.jar $yarndir/share/%{real_name}/yarn
@@ -1010,6 +1022,7 @@ fi
 %{_datadir}/%{real_name}/common/lib
 %{_datadir}/%{real_name}/common/hadoop-kms.jar
 %{_datadir}/%{real_name}/common/hadoop-nfs.jar
+%{_datadir}/%{real_name}/common/hadoop-auth.jar
 %{_libexecdir}/%{real_name}-config.sh
 %{_libexecdir}/%{real_name}-layout.sh
 
@@ -1122,6 +1135,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Fri Apr 16 2021 Ge Wang <wangge20@huawei.com> -3.2.1-6
+- Build with local leveldbjni package instead of package in remote repository
+
 * Thu Apr 08 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-5
 - Add hadoop-yarn-server-timelineservice.jar to rpm package
 
