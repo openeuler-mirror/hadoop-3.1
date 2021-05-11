@@ -12,7 +12,7 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 6
+Release: 7
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -67,34 +67,8 @@ BuildArch: noarch
 Requires(pre): /usr/sbin/useradd
 Obsoletes: %{name}-javadoc < 2.4.1-22%{?dist}
 
-# These are required to meet the symlinks for the classpath
-Requires: antlr-tool
-Requires: apache-commons-beanutils
 Requires: apache-zookeeper
-Requires: avalon-framework
-Requires: avalon-logkit
-Requires: checkstyle
-Requires: coreutils
-Requires: geronimo-jms
-Requires: glassfish-jaxb
-Requires: glassfish-jsp
-Requires: glassfish-jsp-api
-Requires: istack-commons
-Requires: jakarta-commons-httpclient
-Requires: java-base64
-Requires: javamail
-Requires: jettison
-Requires: jetty8
-Requires: jsr-311
 Requires: leveldb
-Requires: mockito
-Requires: objectweb-asm
-Requires: objenesis
-Requires: paranamer
-Requires: relaxngDatatype
-Requires: servlet3
-Requires: snappy-java
-Requires: which
 Requires: protobuf2-java
 
 %description common
@@ -1135,7 +1109,10 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
-* Fri Apr 16 2021 Ge Wang <wangge20@huawei.com> -3.2.1-6
+* Wed May 11 2021 Ge Wang <wangge20@huawei.com> -3.1.4-7
+- Remove redundancy install requires
+
+* Fri Apr 16 2021 Ge Wang <wangge20@huawei.com> -3.1.4-6
 - Build with local leveldbjni package instead of package in remote repository
 
 * Thu Apr 08 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-5
