@@ -12,7 +12,7 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 6
+Release: 7
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -32,6 +32,8 @@ Source10: %{real_name}-core-site.xml
 Source11: %{real_name}-hdfs-site.xml
 Source12: %{real_name}-mapred-site.xml
 Source13: %{real_name}-yarn-site.xml
+
+Patch1: 0001-bugfix-invalid-variable-name.patch 
 
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{release}-root
 BuildRequires: java-1.8.0-openjdk-devel maven hostname maven-local tomcat cmake snappy openssl-devel 
@@ -1135,7 +1137,10 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
-* Fri Apr 16 2021 Ge Wang <wangge20@huawei.com> -3.2.1-6
+* Wed Jun 16  2021 zhangtao <zhangtao221@huawei.com> - 3.1.4-7
+- bugfix invalid variable name
+
+* Fri Apr 16 2021 Ge Wang <wangge20@huawei.com> -3.1.4-6
 - Build with local leveldbjni package instead of package in remote repository
 
 * Thu Apr 08 2021 Ge Wang <wangge20@huawei.com> - 3.1.4-5
