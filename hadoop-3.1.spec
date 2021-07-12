@@ -12,7 +12,7 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 8
+Release: 9
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -38,7 +38,7 @@ Patch0001: 0001-bugfix-invalid-variable-name.patch
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{release}-root
 BuildRequires: java-1.8.0-openjdk-devel maven hostname maven-local tomcat cmake snappy openssl-devel 
 BuildRequires: cyrus-sasl-devel chrpath systemd protobuf2-compiler protobuf2-devel protobuf2-java protobuf2
-Buildrequires: leveldbjni leveldb-java hawtjni-runtime
+Buildrequires: leveldbjni leveldb-java hawtjni-runtime gcc-c++
 Requires: java-1.8.0-openjdk protobuf2-java apache-zookeeper
 
 %description
@@ -1111,6 +1111,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Mon Jul 12 2021 wangyue <wangyue92@huawei.com> - 3.1.4-9
+- Add gcc-c++ to build dependency
+
 * Tue Jun 15 2021 zhangtao <zhangtao221@huawei.com> - 3.1.4-8
 - bugfix invalid variable name
 
