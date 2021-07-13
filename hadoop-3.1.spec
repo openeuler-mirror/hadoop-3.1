@@ -12,7 +12,7 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 8
+Release: 9
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -897,7 +897,7 @@ do
     echo "Failed to determine type of service for %service"
     exit 1
   fi
-  sed -e "s|DAEMON|$daemon|g" $src > %{buildroot}%{_unitdir}/%{real_name}-$s.service
+  sed -e "s|DAEMON|$daemon|g" -e "/LimitNPROC/a\SuccessExitStatus=SIGKILL" $src > %{buildroot}%{_unitdir}/%{real_name}-$s.service
 done
 
 cp -f %{SOURCE7} %{buildroot}%{_sysconfdir}/sysconfig/tomcat@httpfs
@@ -1137,6 +1137,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Mon Jul 12 2021 lingsheng <lingsheng@huawei.com> - 3.1.4-9
+- Fix stop service failure
+
 * Mon Jul 12 2021 wangyue <wangyue92@huawei.com> - 3.1.4-8
 - Add gcc-c++ to build dependency
 
