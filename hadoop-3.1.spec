@@ -12,11 +12,11 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 4
+Release: 5
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
-License: Apache-2.0 and MIT and BSD-2-Clause and EPL and Zlib and MPL-2.0
+License: Apache-2.0 and MIT and BSD-2-Clause and EPL-1.0 and Zlib and MPL-2.0
 URL:     https://%{real_name}.apache.org
 Source0: https://www.apache.org/dist/%{real_name}/core/%{real_name}-%{version}/%{real_name}-%{version}-src.tar.gz
 Source1: %{real_name}-layout.sh
@@ -1113,6 +1113,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Wed Jun 15 2022 Chenyx <chenyixiong3@huawei.com> - 3.1.4-5
+- License compliance rectification
+
 * Mon Jul 12 2021 lingsheng <lingsheng@huawei.com> - 3.1.4-4
 - Fix stop service failure
 
