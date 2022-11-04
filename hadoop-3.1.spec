@@ -12,7 +12,7 @@
 %define _binaries_in_noarch_packages_terminate_build 0
 Name:   hadoop-3.1
 Version: 3.1.4
-Release: 5
+Release: 6
 Summary: A software platform for processing vast amounts of data
 # The BSD license file is missing
 # https://issues.apache.org/jira/browse/HADOOP-9849
@@ -32,15 +32,24 @@ Source10: %{real_name}-core-site.xml
 Source11: %{real_name}-hdfs-site.xml
 Source12: %{real_name}-mapred-site.xml
 Source13: %{real_name}-yarn-site.xml
+Source14: os-maven-plugin-1.7.0.tar.gz
+Source15: icu4j-58.1.tar.gz
+Source16: ehcache-2.8.5.tar.gz
+Source17: hbase-server-1.2.6.tar.gz
+Source18: netty-all-4.1.48.Final.tar.gz
+Source19: aws-java-sdk-bundle-1.11.271.tar.gz
+Source20: hbase-protocol-1.2.6.tar.gz
 
 Patch1: 0001-sys_errlist-undeclared.patch
 Patch2: 0002-bugfix-invalid-variable-name.patch
+Patch3: upgrade_os-maven_plugin_to_1.7.0.patch
+Patch4: fix_build_issue_on_riscv.patch
 
 
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{release}-root
 BuildRequires: java-1.8.0-openjdk-devel maven hostname maven-local tomcat cmake snappy openssl-devel 
 BuildRequires: cyrus-sasl-devel chrpath systemd protobuf2-compiler protobuf2-devel protobuf2-java protobuf2
-Buildrequires: leveldbjni leveldb-java hawtjni-runtime gcc-c++
+Buildrequires: leveldbjni leveldb-java hawtjni-runtime gcc-c++ jetty-client
 Requires: java-1.8.0-openjdk protobuf2-java apache-zookeeper
 
 %description
@@ -242,7 +251,13 @@ This package contains files needed to run Apache Hadoop YARN in secure mode.
 
 %prep
 %autosetup -p1 -n %{real_name}-%{version}-src
+mkdir -p /home/abuild/.m2/repository/kr/motd/maven/os-maven-plugin
+tar -mxf %{SOURCE14} -C /home/abuild/.m2/repository/kr/motd/maven/os-maven-plugin/
+%ifarch riscv64
+mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=2.5.0 -Dclassifier=linux-riscv64 -Dpackaging=exe -Dfile=/usr/bin/protoc
+%else
 mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=2.5.0 -Dclassifier=linux-aarch_64 -Dpackaging=exe -Dfile=/usr/bin/protoc
+%endif
 mvn install:install-file -DgroupId=org.fusesource.leveldbjni -DartifactId=leveldbjni-all -Dversion=1.8 -Dpackaging=jar -Dfile=/usr/lib/java/leveldbjni-all.jar
 mvn install:install-file -DgroupId=org.fusesource.leveldbjni -DartifactId=leveldbjni -Dversion=1.8 -Dpackaging=jar -Dfile=/usr/lib/java/leveldbjni/leveldbjni.jar
 mvn install:install-file -DgroupId=org.iq80.leveldb -DartifactId=leveldb-api -Dversion=0.7 -Dpackaging=jar -Dfile=/usr/share/java/leveldb-java/leveldb-api.jar
@@ -298,6 +313,27 @@ mvn install:install-file -DgroupId=orn.fusesource.hawtjni -DartifactId=hawtjni-r
 %mvn_file :%{real_name}-common::tests: %{real_name}/%{real_name}-common
 
 %build
+mkdir -p /home/abuild/.m2/repository/com/ibm/icu/icu4j
+tar -mxf %{SOURCE15} -C /home/abuild/.m2/repository/com/ibm/icu/icu4j/
+mkdir -p /home/abuild/.m2/repository/net/sf/ehcache/ehcache
+tar -mxf %{SOURCE16} -C /home/abuild/.m2/repository/net/sf/ehcache/ehcache/
+mkdir -p /home/abuild/.m2/repository/org/apache/hbase/hbase-server
+tar -mxf %{SOURCE17} -C /home/abuild/.m2/repository/org/apache/hbase/hbase-server/
+mkdir -p /home/abuild/.m2/repository/io/netty/netty-all
+tar -mxf %{SOURCE18} -C /home/abuild/.m2/repository/io/netty/netty-all/
+mkdir -p /home/abuild/.m2/repository/com/amazonaws/aws-java-sdk-bundle
+tar -mxf %{SOURCE19} -C /home/abuild/.m2/repository/com/amazonaws/aws-java-sdk-bundle/
+mkdir -p /home/abuild/.m2/repository/org/apache/hbase/hbase-protocol
+tar -mxf %{SOURCE20} -C /home/abuild/.m2/repository/org/apache/hbase/hbase-protocol/
+
+%ifarch riscv64
+export MAVEN_OPTS="-Xms2048M -Xmx8000M"
+cat <<EOF > t.sh
+while true; do date +'%R'; sleep 60; done
+EOF
+chmod +x t.sh
+bash t.sh &
+%endif
 mvn -Dsnappy.lib=/usr/lib64 -Dbundle.snappy -Dcontainer-executor.conf.dir=%{_sysconfdir}/%{real_name} -Pdist,native -DskipTests -DskipIT -Dmaven.javadoc.skip=true package
 
 %install
@@ -1113,6 +1149,9 @@ fi
 %config(noreplace) %{_sysconfdir}/%{real_name}/container-executor.cfg
 
 %changelog
+* Thu Oct 20 2022 lvxiaoqian <xiaoqian@nj.iscas.ac.cn> - 3.1.4-6
+- add build dependency and fix riscv build issue
+
 * Wed Jun 15 2022 Chenyx <chenyixiong3@huawei.com> - 3.1.4-5
 - License compliance rectification
 
